@@ -1,7 +1,6 @@
 # -*- coding:utf-8 -*-
 .PHONY: get-deps
 get-deps:
-	go get gopkg.in/iconv.v1
 
 	mkdir -p $$GOPATH/src/golang.org/x
 	if [ ! -d $$GOPATH/src/golang.org/x/net ]; then \
@@ -16,3 +15,5 @@ get-deps:
 	else \
 		cd $$GOPATH/src/golang.org/x/text;git pull;cd -; \
 	fi
+
+	go get github.com/PuerkitoBio/goquery
