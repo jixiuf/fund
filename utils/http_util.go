@@ -5,9 +5,15 @@ import (
 	"net"
 	"net/http"
 	"time"
+
+	"golang.org/x/net/html/charset"
 )
 
 func HttpGet(urlStr string, timeoutMS int) (data []byte, err error) {
+	return HttpGetWithReferer(urlStr, "", timeoutMS)
+}
+
+func HttpGetWithReferer(urlStr, referer string, timeoutMS int) (data []byte, err error) {
 	now := time.Now()
 	client := HttpWithTimeOut(now, timeoutMS)
 	req, err := http.NewRequest("GET", urlStr, nil)
@@ -16,6 +22,10 @@ func HttpGet(urlStr string, timeoutMS int) (data []byte, err error) {
 	if err != nil {
 		return nil, err
 	}
+	if referer != "" {
+		req.Header.Set("Referer", referer)
+	}
+
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:39.0) Gecko/20100101 Firefox/39.0")
 	req.Header.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
@@ -29,7 +39,12 @@ func HttpGet(urlStr string, timeoutMS int) (data []byte, err error) {
 	}
 
 	defer response.Body.Close()
-	data, err = ioutil.ReadAll(response.Body)
+	reader, err := charset.NewReader(response.Body, response.Header.Get("Content-Type")) // 处理字符集的问题,自动进行转码
+	if err != nil {
+		data, err = ioutil.ReadAll(response.Body)
+	} else {
+		data, err = ioutil.ReadAll(reader)
+	}
 	return
 }
 func HttpWithTimeOut(now time.Time, timeoutMillSeconds int) http.Client {
