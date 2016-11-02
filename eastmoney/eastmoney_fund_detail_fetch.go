@@ -30,6 +30,7 @@ type FundValue struct {
 	TotalValue float64
 	DayRatio   float64
 	Time       time.Time
+	FenHong    float64 // 每份基金份额折算1.012175663份
 }
 type FundValueList []FundValue
 
@@ -62,6 +63,7 @@ func GetFund(fundId string) (f Fund, err error) {
 }
 
 func GetFundDetail(fundId string) (f Fund, err error) {
+	f.Id = fundId
 	urlStr := fmt.Sprintf("http://fund.eastmoney.com/%s.html", fundId)
 	data, err := utils.HttpGetWithReferer(urlStr, EasyMoneyHome, DefaultFetchTimeoutMS)
 	if err != nil {
@@ -108,6 +110,7 @@ func GetFundDetail(fundId string) (f Fund, err error) {
 	//
 	createDate := doc.Find("div.infoOfFund table tbody tr").Eq(1).Find("td").Eq(0).Text()
 	var createDateStr string
+
 	fmt.Sscanf(createDate, "成 立 日：%s", &createDateStr)
 	f.CreateTime, _ = time.ParseInLocation("2006-01-02", createDateStr, time.Local)
 
@@ -134,7 +137,6 @@ func GetFundHistoryValueList(fundId string) (list FundValueList, err error) {
 	end := []byte(`</table>`)
 	startPos := bytes.Index(data, start)
 	endPos := bytes.Index(data, end)
-	fmt.Println(startPos, endPos)
 	if startPos == -1 || endPos == -1 {
 		return nil, err
 	}
@@ -152,8 +154,21 @@ func GetFundHistoryValueList(fundId string) (list FundValueList, err error) {
 		var fv FundValue
 		fv.Value = utils.Str2Float64(tr.Find("td").Eq(1).Text(), 0)
 		fv.TotalValue = utils.Str2Float64(tr.Find("td").Eq(2).Text(), 0)
-		fv.DayRatio = utils.Str2Float64(tr.Find("td").Eq(3).Text(), 0)
+		dayRatio := tr.Find("td").Eq(3).Text() // 0.15%
+		if dayRatio != "" {
+			fv.DayRatio = utils.Str2Float64(dayRatio[0:len(dayRatio)-1], 0)
+		}
+
 		fv.Time, _ = time.ParseInLocation("2006-01-02", tr.Find("td").Eq(0).Text(), time.Local)
+
+		// 每份基金份额折算1.012175663份
+		// 是否分红了
+		fenHong := tr.Find("td").Eq(6).Text()
+		if fenHong != "" {
+			fmt.Sscanf(fenHong, "每份基金份额折算%f份", &fv.FenHong)
+			fmt.Println("fff", fv.FenHong)
+		}
+
 		list = append(list, fv)
 	})
 	list.Sort()
