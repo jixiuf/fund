@@ -10,6 +10,31 @@ import (
 
 type FundType int
 
+func (openFuncType FundType) String() string {
+	switch openFuncType {
+	case FundTypeAll:
+		return "All"
+	case FundTypeStock:
+		return "股票型"
+	case FundTypeBlend:
+		return "混合"
+	case FundTypeBond:
+		return "债券"
+	case FundTypeIndex:
+		return "股票指数"
+	case FundTypeETF:
+		return "ETF"
+	case FundTypeQDII:
+		return "QDII"
+	case FundTypeLOF:
+		return "LOF"
+	case FundTypeCNJY:
+		return "场内交易"
+	}
+	return ""
+
+}
+
 var DefaultFetchTimeoutMS = 1000 * 20 // 20s
 
 const (

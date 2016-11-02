@@ -16,8 +16,13 @@ import (
 
 type Fund struct {
 	FundBase
-	FundValueList FundValueList
-	TotalMoney    int64
+	Type                 string
+	FundValueList        FundValueList // 净值列表
+	TotalMoney           int64         // 基金规模
+	TotalMoneyUpdateTime time.Time     // 基金规模更新时间
+	MgrHeader            string        // 基金经理
+	MgrHeaderId          string        // 基金经理id
+	CreateTime           time.Time
 }
 type FundValue struct {
 	// 净值日期	单位净值	累计净值	日增长率	申购状态	赎回状态
@@ -76,8 +81,36 @@ func GetFundDetail(fundId string) (f Fund, err error) {
 	if lastIndex != -1 {
 		title = title[:lastIndex]
 	}
-
 	f.FundBase.Name = title
+
+	// 基金类型
+	fundType := doc.Find("div.infoOfFund table tbody tr").Eq(0).Find("td a").Eq(0).Text()
+	f.Type = fundType
+
+	// 基金规模
+	// 基金规模：2.24亿元（2016-09-30）
+	totalMoney := doc.Find("div.infoOfFund table tbody tr").Eq(0).Find("td").Eq(1).Text()
+	var ft float64
+	var totalMoneyUpdateTime string
+	fmt.Sscanf(totalMoney, "基金规模：%f亿元（%10s）", &ft, &totalMoneyUpdateTime)
+	f.TotalMoney = int64(ft * 10000 * 10000)
+	f.TotalMoneyUpdateTime, _ = time.ParseInLocation("2006-01-02", totalMoneyUpdateTime, time.Local)
+
+	//
+	mgrHeaderNode := doc.Find("div.infoOfFund table tbody tr").Eq(0).Find("td a").Eq(2)
+	f.MgrHeader = mgrHeaderNode.Text()
+	// http://fund.eastmoney.com/f10/jjjl_002207.html
+	href, _ := mgrHeaderNode.Attr("href")
+	startIdx := strings.Index(href, "jjjl_")
+	endIdx := strings.Index(href, ".html")
+	f.MgrHeaderId = href[startIdx+len("jjjl_") : endIdx]
+
+	//
+	createDate := doc.Find("div.infoOfFund table tbody tr").Eq(1).Find("td").Eq(0).Text()
+	var createDateStr string
+	fmt.Sscanf(createDate, "成 立 日：%s", &createDateStr)
+	f.CreateTime, _ = time.ParseInLocation("2006-01-02", createDateStr, time.Local)
+
 	return
 }
 
