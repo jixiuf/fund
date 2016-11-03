@@ -16,7 +16,15 @@ import (
 
 type Fund struct {
 	FundBase
-	Type                 string
+	Type string
+
+	FundValueLast float64 // 最新一天的净值
+
+	DayRatioLast            float64   // 最近一天的增长率
+	FundValueLastUpdateTime time.Time // 净值的最后更新日期
+	TotalFundValueLast      float64   // 最新累计净值
+
+	// FundValueGuess               float64
 	FundValueList        FundValueList // 净值列表
 	TotalMoney           int64         // 基金规模
 	TotalMoneyUpdateTime time.Time     // 基金规模更新时间
@@ -26,11 +34,12 @@ type Fund struct {
 }
 type FundValue struct {
 	// 净值日期	单位净值	累计净值	日增长率	申购状态	赎回状态
-	Value      float64 //
-	TotalValue float64
-	DayRatio   float64
-	Time       time.Time
-	FenHong    float64 // 每份基金份额折算1.012175663份
+	Value        float64 //
+	TotalValue   float64
+	DayRatio     float64
+	Time         time.Time
+	FenHongRatio float64 // 每份基金份额折算1.012175663份
+	FenHongType  int     // 1.每份基金份额折算1.012175663份 2.每份派现金0.2150元, 3. 每份基金份额分拆1.162668813份
 }
 type FundValueList []FundValue
 
@@ -49,16 +58,19 @@ func (l FundValueList) Swap(i, j int) {
 	l[i], l[j] = l[j], l[i]
 }
 
-func GetFund(fundId string) (f Fund, err error) {
+func GetFund(fundId string, fetchFundValueHistory bool) (f Fund, err error) {
 	f, err = GetFundDetail(fundId)
 	if err != nil {
 		return
 	}
-	list, err := GetFundHistoryValueList(fundId)
-	if err != nil {
-		return f, err
+	if fetchFundValueHistory {
+		list, err := GetFundHistoryValueList(fundId, 0)
+		if err != nil {
+			return f, err
+		}
+		f.FundValueList = list
+
 	}
-	f.FundValueList = list
 	return
 }
 
@@ -102,17 +114,32 @@ func GetFundDetail(fundId string) (f Fund, err error) {
 	mgrHeaderNode := doc.Find("div.infoOfFund table tbody tr").Eq(0).Find("td a").Eq(2)
 	f.MgrHeader = mgrHeaderNode.Text()
 	// http://fund.eastmoney.com/f10/jjjl_002207.html
-	href, _ := mgrHeaderNode.Attr("href")
-	startIdx := strings.Index(href, "jjjl_")
-	endIdx := strings.Index(href, ".html")
-	f.MgrHeaderId = href[startIdx+len("jjjl_") : endIdx]
+	href, ok := mgrHeaderNode.Attr("href")
+	if ok {
+		startIdx := strings.Index(href, "jjjl_")
+		endIdx := strings.Index(href, ".html")
+		f.MgrHeaderId = href[startIdx+len("jjjl_") : endIdx]
+	}
 
 	//
 	createDate := doc.Find("div.infoOfFund table tbody tr").Eq(1).Find("td").Eq(0).Text()
 	var createDateStr string
-
 	fmt.Sscanf(createDate, "成 立 日：%s", &createDateStr)
 	f.CreateTime, _ = time.ParseInLocation("2006-01-02", createDateStr, time.Local)
+
+	// 最新净值
+	fundValueLastNode := doc.Find("div.dataOfFund dl.dataItem02")
+	// 单位净值 (2016-11-02)
+	var fundValueLastUpdateTimeStr string
+	fmt.Sscanf(fundValueLastNode.Find("dt").Text(), "单位净值 (%10s)", &fundValueLastUpdateTimeStr)
+	f.FundValueLastUpdateTime, _ = time.ParseInLocation("2006-01-02", fundValueLastUpdateTimeStr, time.Local)
+	f.FundValueLast = utils.Str2Float64(fundValueLastNode.Find("dd.dataNums span").Eq(0).Text(), 0)
+	dayRatioLastStr := fundValueLastNode.Find("dd.dataNums span").Eq(1).Text()
+	if dayRatioLastStr != "" {
+		f.DayRatioLast = utils.Str2Float64(dayRatioLastStr[:len(dayRatioLastStr)-1], 0)
+	}
+
+	f.TotalFundValueLast = utils.Str2Float64(doc.Find("div.dataOfFund dl.dataItem03 dd.dataNums span").Text(), 0)
 
 	return
 }
@@ -125,9 +152,12 @@ func GetFundDetail(fundId string) (f Fund, err error) {
 // <tbody><tr><td>2016-11-01</td><td class='tor bold'>1.0330</td><td class='tor bold'>1.1830</td><td class='tor bold red'>0.78%</td><td>开放申购</td><td>开放赎回</td><td class='red unbold'></td></tr>
 // </tbody></table>",records:764,pages:1,curpage:1};
 
-func GetFundHistoryValueList(fundId string) (list FundValueList, err error) {
+func GetFundHistoryValueList(fundId string, perPage int) (list FundValueList, err error) {
 	// type=lsjz 历史净值
-	perPage := 10000000
+	if perPage == 0 {
+		perPage = 10000000
+	}
+
 	urlStr := fmt.Sprintf("http://fund.eastmoney.com/f10/F10DataApi.aspx?type=lsjz&code=%s&page=1&per=%d", fundId, perPage)
 	data, err := utils.HttpGetWithReferer(urlStr, EasyMoneyHome, DefaultFetchTimeoutMS)
 	if err != nil {
@@ -165,8 +195,19 @@ func GetFundHistoryValueList(fundId string) (list FundValueList, err error) {
 		// 是否分红了
 		fenHong := tr.Find("td").Eq(6).Text()
 		if fenHong != "" {
-			fmt.Sscanf(fenHong, "每份基金份额折算%f份", &fv.FenHong)
-			fmt.Println("fff", fv.FenHong)
+			_, err := fmt.Sscanf(fenHong, "每份基金份额折算%f份", &fv.FenHongRatio)
+			fv.FenHongType = 1
+			if err != nil {
+				_, err := fmt.Sscanf(fenHong, "每份派现金%f元", &fv.FenHongRatio)
+				fv.FenHongType = 2
+				if err != nil {
+					fv.FenHongType = 3
+					_, err := fmt.Sscanf(fenHong, "每份基金份额分拆%f份", &fv.FenHongRatio)
+					if err != nil {
+						fmt.Println("解析基金分红error:", fenHong, fundId, err)
+					}
+				}
+			}
 		}
 
 		list = append(list, fv)
