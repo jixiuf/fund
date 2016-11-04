@@ -77,7 +77,7 @@ func GetFund(fundId string, fetchFundValueHistory bool) (f Fund, err error) {
 func GetFundDetail(fundId string) (f Fund, err error) {
 	f.Id = fundId
 	urlStr := fmt.Sprintf("http://fund.eastmoney.com/%s.html", fundId)
-	data, err := utils.HttpGetWithReferer(urlStr, EasyMoneyHome, DefaultFetchTimeoutMS)
+	data, err := utils.HttpGetWithRefererTryN(urlStr, EasyMoneyHome, DefaultFetchTimeoutMS, 5)
 	if err != nil {
 		return f, err
 	}
@@ -159,7 +159,7 @@ func GetFundHistoryValueList(fundId string, perPage int) (list FundValueList, er
 	}
 
 	urlStr := fmt.Sprintf("http://fund.eastmoney.com/f10/F10DataApi.aspx?type=lsjz&code=%s&page=1&per=%d", fundId, perPage)
-	data, err := utils.HttpGetWithReferer(urlStr, EasyMoneyHome, DefaultFetchTimeoutMS)
+	data, err := utils.HttpGetWithRefererTryN(urlStr, EasyMoneyHome, DefaultFetchTimeoutMS, 5)
 	if err != nil {
 		return nil, err
 	}

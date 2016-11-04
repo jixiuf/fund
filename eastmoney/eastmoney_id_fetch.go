@@ -67,7 +67,7 @@ func GetFundIdList(openFuncType FundType) (list []FundBase) {
 	if urlStr == "" {
 		return
 	}
-	data, _ := utils.HttpGetWithReferer(urlStr, EasyMoneyHome, DefaultFetchTimeoutMS)
+	data, _ := utils.HttpGetWithRefererTryN(urlStr, EasyMoneyHome, DefaultFetchTimeoutMS, 5)
 	var doc *goquery.Document
 	var err error
 	doc, err = goquery.NewDocumentFromReader(bytes.NewReader(data))

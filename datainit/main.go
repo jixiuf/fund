@@ -21,10 +21,6 @@ func initFundValueHistory() {
 	db.FundValueHistoryCreateTable(dbT)
 	stockList := eastmoney.GetFundIdList(eastmoney.FundTypeAll)
 	for idx, fb := range stockList {
-		if idx < 950 {
-			continue
-		}
-
 		fmt.Printf("%d/%d id=%s\n", idx, len(stockList), fb.Id)
 		fd, err := eastmoney.GetFund(fb.Id, true)
 		if err != nil {

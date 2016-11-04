@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	"golang.org/x/net/html/charset"
@@ -13,6 +14,20 @@ func HttpGet(urlStr string, timeoutMS int) (data []byte, err error) {
 	return HttpGetWithReferer(urlStr, "", timeoutMS)
 }
 
+func HttpGetWithRefererTryN(urlStr, referer string, timeoutMS int, n int) (data []byte, err error) {
+	for i := 0; i < n; i++ {
+		data, err = HttpGetWithReferer(urlStr, referer, timeoutMS)
+		if err == nil {
+			return
+		}
+		if !strings.Contains(err.Error(), "timeout") {
+			return
+		}
+		time.Sleep(time.Millisecond * 100)
+	}
+	return
+
+}
 func HttpGetWithReferer(urlStr, referer string, timeoutMS int) (data []byte, err error) {
 	now := time.Now()
 	client := HttpWithTimeOut(now, timeoutMS)
