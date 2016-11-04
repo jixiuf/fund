@@ -155,7 +155,7 @@ func GetFundDetail(fundId string) (f Fund, err error) {
 func GetFundHistoryValueList(fundId string, perPage int) (list FundValueList, err error) {
 	// type=lsjz 历史净值
 	if perPage == 0 {
-		perPage = 10000000
+		perPage = 1000000000
 	}
 
 	urlStr := fmt.Sprintf("http://fund.eastmoney.com/f10/F10DataApi.aspx?type=lsjz&code=%s&page=1&per=%d", fundId, perPage)
