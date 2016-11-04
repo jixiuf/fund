@@ -32,19 +32,27 @@ type Fund struct {
 	MgrHeaderId          string        // 基金经理id
 	CreateTime           time.Time
 }
+type FenHongType int
+
+const (
+	FenHongType1 FenHongType = 1 // 1.每份基金份额折算1.012175663份
+	FenHongType2 FenHongType = 1 // 2.每份派现金0.2150元,
+	FenHongType3 FenHongType = 1 // 3. 每份基金份额分拆1.162668813份 (拆分后净值一般会变成1,用户持有份额会相应增加)
+)
+
 type FundValue struct {
 	// 净值日期	单位净值	累计净值	日增长率	申购状态	赎回状态
 	Value        float64 //
 	TotalValue   float64
 	DayRatio     float64
 	Time         time.Time
-	FenHongRatio float64 // 每份基金份额折算1.012175663份
-	FenHongType  int     // 1.每份基金份额折算1.012175663份 2.每份派现金0.2150元, 3. 每份基金份额分拆1.162668813份
+	FenHongRatio float64     // 每份基金份额折算1.012175663份
+	FenHongType  FenHongType // 1.每份基金份额折算1.012175663份 2.每份派现金0.2150元, 3. 每份基金份额分拆1.162668813份
 }
 type FundList []Fund
 type FundValueList []FundValue
 
-func (l FundValueList) Sort() {
+func (l FundValueList) Sort() { // 按时间升序排列
 	sort.Sort(l)
 }
 
@@ -197,12 +205,12 @@ func GetFundHistoryValueList(fundId string, perPage int) (list FundValueList, er
 		fenHong := tr.Find("td").Eq(6).Text()
 		if fenHong != "" {
 			_, err := fmt.Sscanf(fenHong, "每份基金份额折算%f份", &fv.FenHongRatio)
-			fv.FenHongType = 1
+			fv.FenHongType = FenHongType1
 			if err != nil {
 				_, err := fmt.Sscanf(fenHong, "每份派现金%f元", &fv.FenHongRatio)
-				fv.FenHongType = 2
+				fv.FenHongType = FenHongType2
 				if err != nil {
-					fv.FenHongType = 3
+					fv.FenHongType = FenHongType3
 					_, err := fmt.Sscanf(fenHong, "每份基金份额分拆%f份", &fv.FenHongRatio)
 					if err != nil {
 						fmt.Println("解析基金分红error:", fenHong, fundId, err)

@@ -7,7 +7,7 @@ import (
 import "github.com/stretchr/testify/assert"
 
 func TestGetFundHistoryValueList(t *testing.T) {
-	list, err := GetFundHistoryValueList("165520", 1)
+	list, err := GetFundHistoryValueList("165520", 2)
 	assert.Nil(t, err)
 	assert.NotNil(t, list)
 }

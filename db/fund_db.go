@@ -83,6 +83,23 @@ func FundValueHistoryGetAll(d dt.DatabaseTemplate) (fdList eastmoney.FundList) {
 			lastE = e
 		}
 	}
+
+	return
+
+}
+
+func FundValueHistoryGet(d dt.DatabaseTemplate, fundId string) (fd eastmoney.Fund) {
+	sql := fmt.Sprintf("select fundId,name,time,value,totalValue,dayRatio,fenHongRatio,fenHongType from fund_value_history where fundId=%sorder by fundId,time asc", fundId)
+	e := eastmoney.Fund{}
+	arradd, err := d.QueryArray(sql, mapRowFundValueHistoryGetAll)
+	if err != nil {
+		return
+	}
+	for _, obj := range arradd {
+		e = obj.(eastmoney.Fund)
+		fd.FundValueList = append(fd.FundValueList, e.FundValueList[0])
+	}
+
 	return
 
 }
