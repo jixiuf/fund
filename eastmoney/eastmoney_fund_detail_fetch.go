@@ -41,6 +41,7 @@ type FundValue struct {
 	FenHongRatio float64 // 每份基金份额折算1.012175663份
 	FenHongType  int     // 1.每份基金份额折算1.012175663份 2.每份派现金0.2150元, 3. 每份基金份额分拆1.162668813份
 }
+type FundList []Fund
 type FundValueList []FundValue
 
 func (l FundValueList) Sort() {
