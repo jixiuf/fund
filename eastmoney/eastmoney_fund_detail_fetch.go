@@ -36,8 +36,8 @@ type FenHongType int
 
 const (
 	FenHongType1 FenHongType = 1 // 1.每份基金份额折算1.012175663份
-	FenHongType2 FenHongType = 1 // 2.每份派现金0.2150元,
-	FenHongType3 FenHongType = 1 // 3. 每份基金份额分拆1.162668813份 (拆分后净值一般会变成1,用户持有份额会相应增加)
+	FenHongType2 FenHongType = 2 // 2.每份派现金0.2150元,
+	FenHongType3 FenHongType = 3 // 3. 每份基金份额分拆1.162668813份 (拆分后净值一般会变成1,用户持有份额会相应增加)
 )
 
 type FundValue struct {

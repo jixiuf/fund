@@ -16,6 +16,13 @@ func CalcFundYield(fd eastmoney.Fund, from, to time.Time) float64 {
 	var cnt float64         // 持有份额
 	var inMoney float64 = 1 // 按投入一玩计算
 	var outMoney float64
+	if from.Year() == to.Year() && from.Month() == to.Month() && from.Day() == to.Day() { // from==to
+		return 0
+	}
+	if from.After(to) {
+		return 0
+	}
+
 	for _, fv := range fd.FundValueList {
 		if fv.Time.Before(from) {
 			continue
@@ -39,4 +46,76 @@ func CalcFundYield(fd eastmoney.Fund, from, to time.Time) float64 {
 	}
 	return (outMoney - inMoney) / inMoney
 
+}
+
+// 计算近1月收益率
+func CalcFundYieldLastMonth(fd eastmoney.Fund) float64 {
+	now := time.Now()
+	to := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	from := to.Add(-time.Minute * 60 * 24 * 30)
+	return CalcFundYield(fd, from, to)
+}
+
+// 计算近2月收益率
+func CalcFundYieldLast2Month(fd eastmoney.Fund) float64 {
+	now := time.Now()
+	to := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	from := to.Add(-time.Minute * 60 * 24 * 60)
+	return CalcFundYield(fd, from, to)
+}
+
+// 计算近3月收益率
+func CalcFundYieldLast3Month(fd eastmoney.Fund) float64 {
+	now := time.Now()
+	to := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	from := to.Add(-time.Minute * 60 * 24 * 90)
+	return CalcFundYield(fd, from, to)
+}
+
+// 计算近6月收益率
+func CalcFundYieldLast6Month(fd eastmoney.Fund) float64 {
+	now := time.Now()
+	to := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	from := to.Add(-time.Minute * 60 * 24 * 180)
+	return CalcFundYield(fd, from, to)
+}
+
+// 计算近1年收益率
+func CalcFundYieldLastYear(fd eastmoney.Fund) float64 {
+	now := time.Now()
+	to := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	from := to.Add(-time.Minute * 60 * 24 * 365)
+	return CalcFundYield(fd, from, to)
+}
+
+// 计算近2年收益率
+func CalcFundYieldLast2Year(fd eastmoney.Fund) float64 {
+	now := time.Now()
+	to := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	from := to.Add(-time.Minute * 60 * 24 * 365 * 2)
+	return CalcFundYield(fd, from, to)
+}
+
+// 计算近3年收益率
+func CalcFundYieldLast3Year(fd eastmoney.Fund) float64 {
+	now := time.Now()
+	to := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	from := to.Add(-time.Minute * 60 * 24 * 365 * 3)
+	return CalcFundYield(fd, from, to)
+}
+
+// 计算近5年收益率
+func CalcFundYieldLast5Year(fd eastmoney.Fund) float64 {
+	now := time.Now()
+	to := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	from := to.Add(-time.Minute * 60 * 24 * 365 * 5)
+	return CalcFundYield(fd, from, to)
+}
+
+// 计算近10年收益率
+func CalcFundYieldLast10Year(fd eastmoney.Fund) float64 {
+	now := time.Now()
+	to := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	from := to.Add(-time.Minute * 60 * 24 * 365 * 10)
+	return CalcFundYield(fd, from, to)
 }
