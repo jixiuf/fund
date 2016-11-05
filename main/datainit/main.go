@@ -48,20 +48,3 @@ func initFundValueHistory() {
 	}
 
 }
-
-func dailyUpdateeFundValue() {
-	dbT, _ := dt.NewDatabaseTemplateWithConfig(defs.DBConfig, true)
-	db.FundValueHistoryCreateTable(dbT)
-	stockList := eastmoney.GetFundIdList(eastmoney.FundTypeAll)
-	for idx, fb := range stockList {
-		fmt.Printf("%d/%d id=%s\n", idx, len(stockList), fb.Id)
-		fd, err := eastmoney.GetFundDetail(fb.Id)
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-		db.FundValueHistoryInsertLast(dbT, fd)
-		time.Sleep(time.Second)
-	}
-
-}
