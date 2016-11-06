@@ -67,13 +67,14 @@ func (l FundValueList) Swap(i, j int) {
 	l[i], l[j] = l[j], l[i]
 }
 
-func GetFund(fundId string, fetchFundValueHistory bool) (f Fund, err error) {
+//
+func GetFund(fundId string, fetchFundValueHistoryCnt int) (f Fund, err error) {
 	f, err = GetFundDetail(fundId)
 	if err != nil {
 		return
 	}
-	if fetchFundValueHistory {
-		list, err := GetFundHistoryValueList(fundId, 0)
+	if fetchFundValueHistoryCnt != -1 {
+		list, err := GetFundHistoryValueList(fundId, fetchFundValueHistoryCnt)
 		if err != nil {
 			return f, err
 		}

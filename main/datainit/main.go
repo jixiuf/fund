@@ -23,7 +23,7 @@ func initFundValueHistory() {
 	var tryAgainList []string
 	for idx, fb := range stockList {
 		fmt.Printf("%d/%d id=%s\n", idx, len(stockList), fb.Id)
-		fd, err := eastmoney.GetFund(fb.Id, true)
+		fd, err := eastmoney.GetFund(fb.Id, 0)
 		if err != nil {
 			fmt.Println(err)
 			tryAgainList = append(tryAgainList, fd.Id)
@@ -37,7 +37,7 @@ func initFundValueHistory() {
 	for idx, fundId := range tryAgainList {
 
 		fmt.Printf("%d/%d id=%s\n", idx, len(tryAgainList), fundId)
-		fd, err := eastmoney.GetFund(fundId, true)
+		fd, err := eastmoney.GetFund(fundId, 0)
 		if err != nil {
 			fmt.Println(err)
 			tryAgainList = append(tryAgainList, fundId)

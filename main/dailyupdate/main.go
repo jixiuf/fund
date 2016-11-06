@@ -19,13 +19,13 @@ func dailyUpdateeFundValue() {
 	stockList := eastmoney.GetFundIdList(eastmoney.FundTypeAll)
 	for idx, fb := range stockList {
 		fmt.Printf("%d/%d id=%s\n", idx, len(stockList), fb.Id)
-		fd, err := eastmoney.GetFundDetail(fb.Id)
+		fd, err := eastmoney.GetFund(fb.Id, 10)
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
 		db.FundValueHistoryInsertLast(dbT, fd) // 目前 无法处理 当日分红的情况, 待优化
-		time.Sleep(time.Second)
+		time.Sleep(time.Millisecond * 200)
 	}
 
 }
