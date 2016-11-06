@@ -24,7 +24,7 @@ func dailyUpdateeFundValue() {
 			fmt.Println(err)
 			continue
 		}
-		db.FundValueHistoryInsertLast(dbT, fd) // 目前 无法处理 当日分红的情况, 待优化
+		db.FundValueHistoryInsertAll(dbT, fd) // 目前 无法处理 当日分红的情况, 待优化
 		time.Sleep(time.Millisecond * 200)
 	}
 

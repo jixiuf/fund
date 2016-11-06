@@ -38,8 +38,8 @@ func FundValueHistoryInsertAll(d dt.DatabaseTemplate, fd eastmoney.Fund) {
 }
 
 func FundValueHistoryInsertLast(d dt.DatabaseTemplate, fd eastmoney.Fund) {
-	sql := "insert into fund_value_history (fundId,name,type,time,value,totalValue,dayRatio,fenHongRatio) values"
-	sql += fmt.Sprintf("('%s','%s','%s','%s',%f,%f,%f,%f)", fd.Id, fd.Name, fd.Type, fd.FundValueLastUpdateTime.Format("2006-01-02 00:00:00"), fd.FundValueLast, fd.TotalFundValueLast, fd.DayRatioLast, 0.0)
+	sql := "insert into fund_value_history (fundId,name,type,time,value,totalValue,dayRatio) values"
+	sql += fmt.Sprintf("('%s','%s','%s','%s',%f,%f,%f)", fd.Id, fd.Name, fd.Type, fd.FundValueLastUpdateTime.Format("2006-01-02 00:00:00"), fd.FundValueLast, fd.TotalFundValueLast, fd.DayRatioLast)
 	sql += " ON DUPLICATE KEY UPDATE dayRatio=values(dayRatio),type=values(type),value=values(value),totalValue=values(totalValue),name=values(name)"
 	d.ExecDDL(sql)
 }
