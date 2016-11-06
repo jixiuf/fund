@@ -13,6 +13,7 @@ func FundValueHistoryCreateTable(d dt.DatabaseTemplate) {
 fundId varchar(6) default '',
 name varchar(64) default '',
 time timestamp default CURRENT_TIMESTAMP,
+type varchar(64) default '' comment '类型',
 value float default 0 comment '净值',
 totalValue float default 0 comment '累计净值',
 dayRatio float default 0 comment '日增比率',
@@ -25,9 +26,9 @@ primary key(fundId,time)
 }
 
 func FundValueHistoryInsertAll(d dt.DatabaseTemplate, fd eastmoney.Fund) {
-	sql := "insert into fund_value_history (fundId,name,time,value,totalValue,dayRatio,fenHongType,fenHongRatio) values"
+	sql := "insert into fund_value_history (fundId,name,type,time,value,totalValue,dayRatio,fenHongType,fenHongRatio) values"
 	for idx, fv := range fd.FundValueList {
-		sql += fmt.Sprintf("('%s','%s','%s',%f,%f,%f,%d,%f)", fd.Id, fd.Name, fv.Time.Format("2006-01-02 00:00:00"), fv.Value, fv.TotalValue, fv.DayRatio, fv.FenHongType, fv.FenHongRatio)
+		sql += fmt.Sprintf("('%s','%s','%s','%s',%f,%f,%f,%d,%f)", fd.Id, fd.Name, fd.Type, fv.Time.Format("2006-01-02 00:00:00"), fv.Value, fv.TotalValue, fv.DayRatio, fv.FenHongType, fv.FenHongRatio)
 		if idx != len(fd.FundValueList)-1 {
 			sql += ",\n"
 		}
@@ -37,9 +38,9 @@ func FundValueHistoryInsertAll(d dt.DatabaseTemplate, fd eastmoney.Fund) {
 }
 
 func FundValueHistoryInsertLast(d dt.DatabaseTemplate, fd eastmoney.Fund) {
-	sql := "insert into fund_value_history (fundId,name,time,value,totalValue,dayRatio,fenHongRatio) values"
-	sql += fmt.Sprintf("('%s','%s','%s',%f,%f,%f,%f)", fd.Id, fd.Name, fd.FundValueLastUpdateTime.Format("2006-01-02 00:00:00"), fd.FundValueLast, fd.TotalFundValueLast, fd.DayRatioLast, 0.0)
-	sql += " ON DUPLICATE KEY UPDATE dayRatio=values(dayRatio),value=values(value),totalValue=values(totalValue),name=values(name)"
+	sql := "insert into fund_value_history (fundId,name,type,time,value,totalValue,dayRatio,fenHongRatio) values"
+	sql += fmt.Sprintf("('%s','%s','%s','%s',%f,%f,%f,%f)", fd.Id, fd.Name, fd.Type, fd.FundValueLastUpdateTime.Format("2006-01-02 00:00:00"), fd.FundValueLast, fd.TotalFundValueLast, fd.DayRatioLast, 0.0)
+	sql += " ON DUPLICATE KEY UPDATE dayRatio=values(dayRatio),type=values(type),value=values(value),totalValue=values(totalValue),name=values(name)"
 	d.ExecDDL(sql)
 }
 
@@ -50,6 +51,7 @@ func mapRowFundValueHistoryGetAll(resultSet *sql.Rows) (interface{}, error) {
 	err := resultSet.Scan(
 		&e.Id,
 		&e.Name,
+		&e.Type,
 		&history.Time,
 		&history.Value,
 		&history.TotalValue,
@@ -67,7 +69,7 @@ func mapRowFundValueHistoryGetAll(resultSet *sql.Rows) (interface{}, error) {
 }
 
 func FundValueHistoryGetAll(d dt.DatabaseTemplate) (fdList eastmoney.FundList) {
-	sql := "select fundId,name,time,value,totalValue,dayRatio,fenHongRatio,fenHongType from fund_value_history order by fundId,time asc"
+	sql := "select fundId,name,type,time,value,totalValue,dayRatio,fenHongRatio,fenHongType from fund_value_history order by fundId,time asc"
 	e := eastmoney.Fund{}
 	lastE := eastmoney.Fund{}
 	arradd, err := d.QueryArray(sql, mapRowFundValueHistoryGetAll)
@@ -89,7 +91,7 @@ func FundValueHistoryGetAll(d dt.DatabaseTemplate) (fdList eastmoney.FundList) {
 }
 
 func FundValueHistoryGet(d dt.DatabaseTemplate, fundId string) (fd eastmoney.Fund) {
-	sql := fmt.Sprintf("select fundId,name,time,value,totalValue,dayRatio,fenHongRatio,fenHongType from fund_value_history where fundId=%sorder by fundId,time asc", fundId)
+	sql := fmt.Sprintf("select fundId,name,type,time,value,totalValue,dayRatio,fenHongRatio,fenHongType from fund_value_history where fundId=%sorder by fundId,time asc", fundId)
 	e := eastmoney.Fund{}
 	arradd, err := d.QueryArray(sql, mapRowFundValueHistoryGetAll)
 	if err != nil {
