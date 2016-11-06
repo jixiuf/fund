@@ -25,7 +25,7 @@ primary key(fundId,time)
 
 }
 
-func FundValueHistoryInsertAll(d dt.DatabaseTemplate, fd eastmoney.Fund) {
+func FundValueHistoryInsertAll(d dt.DatabaseTemplate, fd eastmoney.Fund) (err error) {
 	sql := "insert into fund_value_history (fundId,name,type,time,value,totalValue,dayRatio,fenHongType,fenHongRatio) values"
 	for idx, fv := range fd.FundValueList {
 		sql += fmt.Sprintf("('%s','%s','%s','%s',%f,%f,%f,%d,%f)", fd.Id, fd.Name, fd.Type, fv.Time.Format("2006-01-02 00:00:00"), fv.Value, fv.TotalValue, fv.DayRatio, fv.FenHongType, fv.FenHongRatio)
@@ -33,15 +33,21 @@ func FundValueHistoryInsertAll(d dt.DatabaseTemplate, fd eastmoney.Fund) {
 			sql += ",\n"
 		}
 	}
-	sql += " ON DUPLICATE KEY UPDATE dayRatio=values(dayRatio),value=values(value),totalValue=values(totalValue),name=values(name),fenHongRatio=values(fenHongRatio),fenHongType=values(fenHongType)"
-	d.ExecDDL(sql)
+	sql += " ON DUPLICATE KEY UPDATE dayRatio=values(dayRatio),value=values(value),totalValue=values(totalValue),name=values(name),fenHongRatio=values(fenHongRatio),fenHongType=values(fenHongType),type=values(type)"
+	err = d.ExecDDL(sql)
+	return
 }
 
-func FundValueHistoryInsertLast(d dt.DatabaseTemplate, fd eastmoney.Fund) {
+func FundValueHistoryInsertLast(d dt.DatabaseTemplate, fd eastmoney.Fund) error {
 	sql := "insert into fund_value_history (fundId,name,type,time,value,totalValue,dayRatio) values"
 	sql += fmt.Sprintf("('%s','%s','%s','%s',%f,%f,%f)", fd.Id, fd.Name, fd.Type, fd.FundValueLastUpdateTime.Format("2006-01-02 00:00:00"), fd.FundValueLast, fd.TotalFundValueLast, fd.DayRatioLast)
 	sql += " ON DUPLICATE KEY UPDATE dayRatio=values(dayRatio),type=values(type),value=values(value),totalValue=values(totalValue),name=values(name)"
-	d.ExecDDL(sql)
+	return d.ExecDDL(sql)
+}
+
+func FundValueHistoryUpdateType(d dt.DatabaseTemplate, fd eastmoney.Fund) error {
+	sql := fmt.Sprintf("update  fund_value_history set type='%s' where fundId='%s'", fd.Type, fd.Id)
+	return d.ExecDDL(sql)
 }
 
 func mapRowFundValueHistoryGetAll(resultSet *sql.Rows) (interface{}, error) {
