@@ -1,11 +1,9 @@
-package analysis
+package eastmoney
 
 import (
 	"fmt"
 	"testing"
 	"time"
-
-	"bitbucket.org/jixiuf/fund/eastmoney"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -52,23 +50,23 @@ func TestIsPeriodDay_Month2(t *testing.T) {
 func TestCalcFundPeroidYield(t *testing.T) {
 	from := time.Date(2015, 11, 4, 0, 0, 0, 0, time.Local) //
 	to := time.Date(2016, 11, 4, 0, 0, 0, 0, time.Local)
-	fd, _ := eastmoney.GetFund("210004", true)
-	monthYield := CalcFundPeroidYield(fd, Month, from, to)
+	fd, _ := GetFund("210004", 0)
+	monthYield := fd.CalcFundPeroidYield(Month, from, to)
 	fmt.Println(monthYield)
 }
 
 func TestCalcFundPeroidYield2(t *testing.T) {
 	from := time.Date(2014, 11, 4, 0, 0, 0, 0, time.Local) //
 	to := time.Date(2016, 11, 4, 0, 0, 0, 0, time.Local)
-	fd, _ := eastmoney.GetFund("210004", true)
-	monthYield := CalcFundPeroidYield(fd, Month, from, to)
+	fd, _ := GetFund("210004", 0)
+	monthYield := fd.CalcFundPeroidYield(Month, from, to)
 	fmt.Println(monthYield)
 }
 
 func TestCalcFundPeroidYield3(t *testing.T) {
 	from := time.Date(2013, 11, 4, 0, 0, 0, 0, time.Local) //
 	to := time.Date(2016, 11, 4, 0, 0, 0, 0, time.Local)
-	fd, _ := eastmoney.GetFund("210004", true)
-	monthYield := CalcFundPeroidYield(fd, Month, from, to)
+	fd, _ := GetFund("210004", 0)
+	monthYield := fd.CalcFundPeroidYield(Month, from, to)
 	fmt.Println(monthYield)
 }

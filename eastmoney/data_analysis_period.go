@@ -1,9 +1,8 @@
-package analysis
+package eastmoney
 
 import (
 	"time"
 
-	"bitbucket.org/jixiuf/fund/eastmoney"
 	"bitbucket.org/jixiuf/fund/utils"
 )
 
@@ -21,7 +20,7 @@ const (
 //计算某只基金，从from 开始定投，to时卖出 的收益率
 // period 为定投周期,如果某定投日为节假日,则顺延到下一天定投
 // 若按周定投,若起投日为周六日,则相当于起投日为下周一
-func CalcFundPeroidYield(fd eastmoney.Fund, period Period, from, to time.Time) (yield float64) {
+func (fd Fund) CalcFundPeroidYield(period Period, from, to time.Time) (yield float64) {
 	var cnt float64 = 0    // 定投次数
 	var totalMoney float64 // 定投结束后 本金加利息
 	if from.After(to) {
@@ -33,7 +32,7 @@ func CalcFundPeroidYield(fd eastmoney.Fund, period Period, from, to time.Time) (
 			break
 		}
 		if isPeriodDay(period, day, from, to) { // 如果day当天是定投日
-			tmpYield := CalcFundYield(fd, day, to) // 计算day时买入1玩,到to日的收益率
+			tmpYield := fd.CalcFundYield(day, to) // 计算day时买入1玩,到to日的收益率
 			totalMoney += 1 * (1 + tmpYield)
 			cnt++
 		}
