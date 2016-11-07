@@ -26,7 +26,7 @@ func dailyUpdateeFundValue() {
 		}
 		db.FundValueHistoryInsertAll(dbT, fd) // 目前 无法处理 当日分红的情况, 待优化
 		db.FundValueHistoryUpdateType(dbT, fd)
-		time.Sleep(time.Millisecond * 200)
+		time.Sleep(time.Millisecond * 100)
 	}
 
 }

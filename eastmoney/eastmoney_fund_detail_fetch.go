@@ -2,7 +2,6 @@ package eastmoney
 
 import (
 	"fmt"
-	"sort"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -13,59 +12,6 @@ import (
 
 	"bitbucket.org/jixiuf/fund/utils"
 )
-
-type Fund struct {
-	FundBase
-	Type string
-
-	FundValueLast float64 // 最新一天的净值
-
-	DayRatioLast            float64   // 最近一天的增长率
-	FundValueLastUpdateTime time.Time // 净值的最后更新日期
-	TotalFundValueLast      float64   // 最新累计净值
-
-	// FundValueGuess               float64
-	FundValueList        FundValueList // 净值列表
-	TotalMoney           int64         // 基金规模
-	TotalMoneyUpdateTime time.Time     // 基金规模更新时间
-	MgrHeader            string        // 基金经理
-	MgrHeaderId          string        // 基金经理id
-	CreateTime           time.Time
-}
-type FenHongType int
-
-const (
-	FenHongType1 FenHongType = 1 // 1.每份基金份额折算1.012175663份
-	FenHongType2 FenHongType = 2 // 2.每份派现金0.2150元,
-	FenHongType3 FenHongType = 3 // 3. 每份基金份额分拆1.162668813份 (拆分后净值一般会变成1,用户持有份额会相应增加)
-)
-
-type FundValue struct {
-	// 净值日期	单位净值	累计净值	日增长率	申购状态	赎回状态
-	Value        float64 //
-	TotalValue   float64
-	DayRatio     float64
-	Time         time.Time
-	FenHongRatio float64     // 每份基金份额折算1.012175663份
-	FenHongType  FenHongType // 1.每份基金份额折算1.012175663份 2.每份派现金0.2150元, 3. 每份基金份额分拆1.162668813份
-}
-type FundList []Fund
-type FundValueList []FundValue
-
-func (l FundValueList) Sort() { // 按时间升序排列
-	sort.Sort(l)
-}
-
-// 实现sort 接口
-func (l FundValueList) Len() int {
-	return len(l)
-}
-func (l FundValueList) Less(i, j int) bool {
-	return l[i].Time.Before(l[j].Time)
-}
-func (l FundValueList) Swap(i, j int) {
-	l[i], l[j] = l[j], l[i]
-}
 
 //
 func GetFund(fundId string, fetchFundValueHistoryCnt int) (f Fund, err error) {

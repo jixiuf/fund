@@ -35,28 +35,6 @@ func (openFuncType FundType) String() string {
 
 }
 
-var DefaultFetchTimeoutMS = 1000 * 20 // 20s
-
-const (
-	FundTypeAll   FundType = 1 // 所有开放式基金
-	FundTypeStock FundType = 2 // 股票型开放式基金
-	FundTypeBlend FundType = 3 // 混合型开放式基金
-	FundTypeBond  FundType = 4 // 债券开放式基金
-	FundTypeIndex FundType = 5 // 指数开放式基金
-	FundTypeETF   FundType = 6 // ETF开放式基金
-	FundTypeQDII  FundType = 7 // QDII开放式基金
-	FundTypeLOF   FundType = 8 // LOF开放式基金
-	FundTypeCNJY  FundType = 9 // 场内交易基金
-)
-
-type FundBase struct {
-	Id   string
-	Name string
-	// ValueUnit           float64   // 单位净值
-	// ValueTotal          float64   // 累计净值
-	// LastValueUpdateTime time.Time // 净值最后一次更新日期
-}
-
 const (
 	EasyMoneyHome = "http://fund.eastmoney.com"
 )

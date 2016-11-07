@@ -80,11 +80,14 @@ func FundValueHistoryGetAll(d dt.DatabaseTemplate) (fdList eastmoney.FundList) {
 	lastE := eastmoney.Fund{}
 	arradd, err := d.QueryArray(sql, mapRowFundValueHistoryGetAll)
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 	for _, obj := range arradd {
 		e = obj.(eastmoney.Fund)
-		if e.Id == lastE.Id || lastE.Id == "" {
+		if lastE.Id == "" {
+			lastE = e
+		} else if e.Id == lastE.Id {
 			lastE.FundValueList = append(lastE.FundValueList, e.FundValueList[0])
 		} else {
 			fdList = append(fdList, lastE)

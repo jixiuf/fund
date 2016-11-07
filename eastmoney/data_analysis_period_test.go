@@ -70,3 +70,9 @@ func TestCalcFundPeroidYield3(t *testing.T) {
 	monthYield := fd.CalcFundPeroidYield(Month, from, to)
 	fmt.Println(monthYield)
 }
+
+func TestCalcFundPeroidYield001368(t *testing.T) {
+	fd, _ := GetFund("360005", 0)
+	monthYield := fd.CalcFundPeriodYieldLastYear(Month)
+	fmt.Println(monthYield)
+}

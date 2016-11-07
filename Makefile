@@ -1,5 +1,14 @@
 # -*- coding:utf-8 -*-
 .PHONY: get-deps
+build:
+	go install bitbucket.org/jixiuf/fund/db
+	go install bitbucket.org/jixiuf/fund/defs
+	go install bitbucket.org/jixiuf/fund/dt
+	go install bitbucket.org/jixiuf/fund/utils
+	go install bitbucket.org/jixiuf/fund/eastmoney
+	go install bitbucket.org/jixiuf/fund/main/datainit
+	go install bitbucket.org/jixiuf/fund/main/dailyupdate
+	go install bitbucket.org/jixiuf/fund/main/rank_period
 get-deps:
 
 	mkdir -p $$GOPATH/src/golang.org/x

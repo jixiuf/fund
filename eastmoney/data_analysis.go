@@ -8,15 +8,23 @@ import "time"
 // 期间会考虑这段时间的分红 (现金分红以红利再投资方式处理，份额折算则算为份额继续持有)
 // 假如from 当天是假期，则按假期后一日来计算(天天基金网上的收益按假期前一日计算的)
 func (fd Fund) CalcFundYield(from, to time.Time) float64 {
+	yield, _ := fd.calcFundYield(from, to)
+	return yield
+}
+
+// 返回收益率,及 实际开始投资日,
+// 比如 基金于2016-10-1月为成立日, 而参数from日期可能早于此值如2016-9-1,则实际计算的时候按from=2016-10-1来计算,
+// 此时startFundValue即为2016-10-1
+func (fd Fund) calcFundYield(from, to time.Time) (yield float64, startFundValue FundValue) {
 	var baseValue float64   // 起投那天的净值
 	var cnt float64         // 持有份额
 	var inMoney float64 = 1 // 按投入一玩计算
 	var outMoney float64
 	if from.Year() == to.Year() && from.Month() == to.Month() && from.Day() == to.Day() { // from==to
-		return 0
+		return 0, startFundValue
 	}
 	if from.After(to) {
-		return 0
+		return 0, startFundValue
 	}
 
 	for _, fv := range fd.FundValueList {
@@ -29,19 +37,24 @@ func (fd Fund) CalcFundYield(from, to time.Time) float64 {
 		if baseValue == 0 { // 买入的那天
 			baseValue = fv.Value
 			cnt = inMoney / baseValue
+			startFundValue = fv
 			continue
 		}
 		if fv.FenHongType == FenHongType1 { // 1.每份基金份额折算1.012175663份 (折算之后 用户持有份额会增加，净值相应减少)
 			cnt *= fv.FenHongRatio // (因折算导致 )持有份额增加
 		} else if fv.FenHongType == FenHongType2 { // 2.每份派现金0.2150元,
-			cnt += fv.FenHongRatio / fv.Value
+			if fv.Value == 0 { // 有时返回的数据会是空行,则派现后,净值可能会变成1 2016-4-21 日的记录 如http://fund.eastmoney.com/f10/jjjz_001368.html
+				fv.Value = 1
+			}
+
+			cnt += (cnt * fv.FenHongRatio) / fv.Value
 		} else if fv.FenHongType == FenHongType3 { // 3. 每份基金份额分拆1.162668813份
 			cnt *= fv.FenHongRatio // 持有份额增加
 		}
 		outMoney = cnt * fv.Value
 	}
-	return (outMoney - inMoney) / inMoney
-
+	yield = (outMoney - inMoney) / inMoney
+	return
 }
 
 // 计算近1月收益率

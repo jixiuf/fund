@@ -20,13 +20,24 @@ const (
 //计算某只基金，从from 开始定投，to时卖出 的收益率
 // period 为定投周期,如果某定投日为节假日,则顺延到下一天定投
 // 若按周定投,若起投日为周六日,则相当于起投日为下周一
-func (fd Fund) CalcFundPeroidYield(period Period, from, to time.Time) (yield float64) {
-	var cnt float64 = 0    // 定投次数
+// count // 定投次数
+func (fd Fund) CalcFundPeroidYield(period Period, from, to time.Time) (yield float64, count float64) {
 	var totalMoney float64 // 定投结束后 本金加利息
+	if len(fd.FundValueList) == 0 {
+		return
+	}
+	if from.Before(fd.FundValueList[0].Time) { // from =成立日
+		from = fd.FundValueList[0].Time
+	}
+	if to.After(fd.FundValueList[0].Time) {
+		to = fd.FundValueList[len(fd.FundValueList)-1].Time
+	}
 	if from.After(to) {
 		return
 	}
+
 	var day time.Time = from
+
 	for {
 		if day.After(to) || (day.Year() == to.Year() && day.Month() == to.Month() && day.Day() == to.Day()) {
 			break
@@ -34,13 +45,17 @@ func (fd Fund) CalcFundPeroidYield(period Period, from, to time.Time) (yield flo
 		if isPeriodDay(period, day, from, to) { // 如果day当天是定投日
 			tmpYield := fd.CalcFundYield(day, to) // 计算day时买入1玩,到to日的收益率
 			totalMoney += 1 * (1 + tmpYield)
-			cnt++
+			count++
 		}
 		day = day.Add(time.Minute * 60 * 24)
 	}
-	// cnt*1 为定期期间投入的本金总合
+	if count == 0 {
+		return 0, 0
+	}
+
+	// count*1 为定期期间投入的本金总合
 	// 而totalMoney 为 本金+利息
-	yield = (totalMoney - cnt*1) / (cnt * 1)
+	yield = (totalMoney - count*1) / (count * 1)
 
 	return
 }
@@ -74,4 +89,61 @@ func isPeriodDay(period Period, day, from, to time.Time) bool {
 		return false
 	}
 	return false
+}
+
+// 计算定投收益率
+// 计算近3月收益率
+func (fd Fund) CalcFundPeriodYieldLast3Month(period Period) (float64, float64) {
+	now := time.Now()
+	to := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	from := to.Add(-time.Minute * 60 * 24 * 90)
+	return fd.CalcFundPeroidYield(period, from, to)
+}
+
+// 计算近6月收益率
+func (fd Fund) CalcFundPeriodYieldLast6Month(period Period) (float64, float64) {
+	now := time.Now()
+	to := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	from := to.Add(-time.Minute * 60 * 24 * 180)
+	return fd.CalcFundPeroidYield(period, from, to)
+}
+
+// 计算近1年收益率
+func (fd Fund) CalcFundPeriodYieldLastYear(period Period) (float64, float64) {
+	now := time.Now()
+	to := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	from := to.Add(-time.Minute * 60 * 24 * 365)
+	return fd.CalcFundPeroidYield(period, from, to)
+}
+
+// 计算近2年收益率
+func (fd Fund) CalcFundPeriodYieldLast2Year(period Period) (float64, float64) {
+	now := time.Now()
+	to := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	from := to.Add(-time.Minute * 60 * 24 * 365 * 2)
+	return fd.CalcFundPeroidYield(period, from, to)
+}
+
+// 计算近3年收益率
+func (fd Fund) CalcFundPeriodYieldLast3Year(period Period) (float64, float64) {
+	now := time.Now()
+	to := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	from := to.Add(-time.Minute * 60 * 24 * 365 * 3)
+	return fd.CalcFundPeroidYield(period, from, to)
+}
+
+// 计算近5年收益率
+func (fd Fund) CalcFundPeriodYieldLast5Year(period Period) (float64, float64) {
+	now := time.Now()
+	to := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	from := to.Add(-time.Minute * 60 * 24 * 365 * 5)
+	return fd.CalcFundPeroidYield(period, from, to)
+}
+
+// 计算近10年收益率
+func (fd Fund) CalcFundPeriodYieldLast10Year(period Period) (float64, float64) {
+	now := time.Now()
+	to := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	from := to.Add(-time.Minute * 60 * 24 * 365 * 10)
+	return fd.CalcFundPeroidYield(period, from, to)
 }
