@@ -80,6 +80,32 @@ func (l FundValueList) Swap(i, j int) {
 }
 
 type FundList []Fund
+
+func (l FundList) GetSorter() FundListSort {
+	return NewFundListSort(l)
+}
+func (l FundList) Len() int {
+	return len(l)
+}
+func (l FundList) IsIn(fd Fund) bool {
+	for _, tmp := range l {
+		if tmp.Id == fd.Id {
+			return true
+		}
+	}
+	return false
+}
+func (l FundList) And(l2 FundList) (l3 FundList) {
+	// 返回在l 且在l2中的
+	for _, fd := range l {
+		if l2.IsIn(fd) {
+			l3 = append(l3, fd)
+		}
+	}
+	return
+
+}
+
 type FundListSort struct {
 	FundList     FundList
 	sortFuncLess func(i, j Fund) bool

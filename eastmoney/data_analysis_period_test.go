@@ -51,7 +51,7 @@ func TestCalcFundPeroidYield(t *testing.T) {
 	from := time.Date(2015, 11, 4, 0, 0, 0, 0, time.Local) //
 	to := time.Date(2016, 11, 4, 0, 0, 0, 0, time.Local)
 	fd, _ := GetFund("210004", 0)
-	monthYield := fd.CalcFundPeroidYield(Month, from, to)
+	monthYield := fd.CalcFundPeroidYieldWithPeriod(Month, from, to)
 	fmt.Println(monthYield)
 }
 
@@ -59,7 +59,7 @@ func TestCalcFundPeroidYield2(t *testing.T) {
 	from := time.Date(2014, 11, 4, 0, 0, 0, 0, time.Local) //
 	to := time.Date(2016, 11, 4, 0, 0, 0, 0, time.Local)
 	fd, _ := GetFund("210004", 0)
-	monthYield := fd.CalcFundPeroidYield(Month, from, to)
+	monthYield := fd.CalcFundPeroidYieldWithPeriod(Month, from, to)
 	fmt.Println(monthYield)
 }
 
@@ -67,7 +67,7 @@ func TestCalcFundPeroidYield3(t *testing.T) {
 	from := time.Date(2013, 11, 4, 0, 0, 0, 0, time.Local) //
 	to := time.Date(2016, 11, 4, 0, 0, 0, 0, time.Local)
 	fd, _ := GetFund("210004", 0)
-	monthYield := fd.CalcFundPeroidYield(Month, from, to)
+	monthYield := fd.CalcFundPeroidYieldWithPeriod(Month, from, to)
 	fmt.Println(monthYield)
 }
 
