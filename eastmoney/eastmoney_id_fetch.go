@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"fmt"
 
-	"bitbucket.org/jixiuf/fund/utils"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/jixiuf/fund/utils"
 )
 
 type FundType int

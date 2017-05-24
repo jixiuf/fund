@@ -3,7 +3,7 @@ package eastmoney
 import (
 	"time"
 
-	"bitbucket.org/jixiuf/fund/utils"
+	"github.com/jixiuf/fund/utils"
 )
 
 // 定投基金收益率

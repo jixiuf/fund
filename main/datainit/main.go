@@ -5,10 +5,10 @@ import (
 
 	"time"
 
-	"bitbucket.org/jixiuf/fund/db"
-	"bitbucket.org/jixiuf/fund/defs"
-	"bitbucket.org/jixiuf/fund/dt"
-	"bitbucket.org/jixiuf/fund/eastmoney"
+	"github.com/jixiuf/fund/db"
+	"github.com/jixiuf/fund/defs"
+	"github.com/jixiuf/fund/dt"
+	"github.com/jixiuf/fund/eastmoney"
 )
 
 func main() {

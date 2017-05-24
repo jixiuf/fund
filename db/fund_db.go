@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	"bitbucket.org/jixiuf/fund/dt"
-	"bitbucket.org/jixiuf/fund/eastmoney"
+	"github.com/jixiuf/fund/dt"
+	"github.com/jixiuf/fund/eastmoney"
 )
 
 func FundValueHistoryCreateTable(d dt.DatabaseTemplate) {

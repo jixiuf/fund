@@ -10,7 +10,7 @@ import (
 
 	"strings"
 
-	"bitbucket.org/jixiuf/fund/utils"
+	"github.com/jixiuf/fund/utils"
 )
 
 //
