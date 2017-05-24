@@ -1,5 +1,6 @@
 # -*- coding:utf-8 -*-
 .PHONY: get-deps
+.PHONY: vendor
 build:
 	go install github.com/jixiuf/fund/db
 	go install github.com/jixiuf/fund/defs
@@ -26,3 +27,16 @@ get-deps:
 	fi
 
 	go get github.com/PuerkitoBio/goquery
+vendor:
+	if [ -z `command -v godep` ] ; then \
+		go get github.com/tools/godep;\
+	fi
+
+
+	if [ -d vendor ] ; then  \
+		godep update ./...; \
+	else \
+		godep save ./...; \
+	fi
+
+
