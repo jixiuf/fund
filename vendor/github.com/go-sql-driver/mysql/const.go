@@ -9,9 +9,10 @@
 package mysql
 
 const (
-	minProtocolVersion byte = 10
+	defaultMaxAllowedPacket = 4 << 20 // 4 MiB
+	minProtocolVersion      = 10
 	maxPacketSize           = 1<<24 - 1
-	timeFormat              = "2006-01-02 15:04:05"
+	timeFormat              = "2006-01-02 15:04:05.999999"
 )
 
 // MySQL constants documentation:
@@ -24,6 +25,7 @@ const (
 	iERR         byte = 0xff
 )
 
+// https://dev.mysql.com/doc/internals/en/capability-flags.html#packet-Protocol::CapabilityFlags
 type clientFlag uint32
 
 const (
@@ -45,6 +47,13 @@ const (
 	clientSecureConn
 	clientMultiStatements
 	clientMultiResults
+	clientPSMultiResults
+	clientPluginAuth
+	clientConnectAttrs
+	clientPluginAuthLenEncClientData
+	clientCanHandleExpiredPasswords
+	clientSessionTrack
+	clientDeprecateEOF
 )
 
 const (
@@ -68,7 +77,7 @@ const (
 	comBinlogDump
 	comTableDump
 	comConnectOut
-	comRegiserSlave
+	comRegisterSlave
 	comStmtPrepare
 	comStmtExecute
 	comStmtSendLongData
@@ -78,8 +87,11 @@ const (
 	comStmtFetch
 )
 
+// https://dev.mysql.com/doc/internals/en/com-query-response.html#packet-Protocol::ColumnType
+type fieldType byte
+
 const (
-	fieldTypeDecimal byte = iota
+	fieldTypeDecimal fieldType = iota
 	fieldTypeTiny
 	fieldTypeShort
 	fieldTypeLong
@@ -98,7 +110,8 @@ const (
 	fieldTypeBit
 )
 const (
-	fieldTypeNewDecimal byte = iota + 0xf6
+	fieldTypeJSON fieldType = iota + 0xf5
+	fieldTypeNewDecimal
 	fieldTypeEnum
 	fieldTypeSet
 	fieldTypeTinyBLOB
@@ -129,4 +142,25 @@ const (
 	flagUnknown2
 	flagUnknown3
 	flagUnknown4
+)
+
+// http://dev.mysql.com/doc/internals/en/status-flags.html
+type statusFlag uint16
+
+const (
+	statusInTrans statusFlag = 1 << iota
+	statusInAutocommit
+	statusReserved // Not in documentation
+	statusMoreResultsExists
+	statusNoGoodIndexUsed
+	statusNoIndexUsed
+	statusCursorExists
+	statusLastRowSent
+	statusDbDropped
+	statusNoBackslashEscapes
+	statusMetadataChanged
+	statusQueryWasSlow
+	statusPsOutParams
+	statusInTransReadonly
+	statusSessionStateChanged
 )

@@ -21,8 +21,8 @@
 		},
 		{
 			"ImportPath": "github.com/go-sql-driver/mysql",
-			"Comment": "v1.2",
-			"Rev": "a732e14c62dde3285440047bba97581bc472ae18"
+			"Comment": "v1.3-49-gcd4cb90",
+			"Rev": "cd4cb909ce1a31435164be29bf3682031f61539a"
 		},
 		{
 			"ImportPath": "github.com/pmezard/go-difflib/difflib",
@@ -35,15 +35,15 @@
 		},
 		{
 			"ImportPath": "golang.org/x/net/html",
-			"Rev": "6b27048ae5e6ad1ef927e72e437531493de612fe"
+			"Rev": "a8b9294777976932365dabb6640cf1468d95c70f"
 		},
 		{
 			"ImportPath": "golang.org/x/net/html/atom",
-			"Rev": "6b27048ae5e6ad1ef927e72e437531493de612fe"
+			"Rev": "a8b9294777976932365dabb6640cf1468d95c70f"
 		},
 		{
 			"ImportPath": "golang.org/x/net/html/charset",
-			"Rev": "6b27048ae5e6ad1ef927e72e437531493de612fe"
+			"Rev": "a8b9294777976932365dabb6640cf1468d95c70f"
 		},
 		{
 			"ImportPath": "golang.org/x/text/encoding",
@@ -104,6 +104,16 @@
 		{
 			"ImportPath": "golang.org/x/text/transform",
 			"Rev": "a49bea13b776691cb1b49873e5d8df96ec74831a"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/vendor/github.com/davecgh/go-spew/spew",
+			"Comment": "v1.1.3-6-g6fe211e",
+			"Rev": "6fe211e493929a8aac0469b93f28b1d0688a9a3a"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/vendor/github.com/pmezard/go-difflib/difflib",
+			"Comment": "v1.1.3-6-g6fe211e",
+			"Rev": "6fe211e493929a8aac0469b93f28b1d0688a9a3a"
 		}
 	]
 }

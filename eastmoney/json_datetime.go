@@ -10,7 +10,7 @@ import (
 type JsonDateTime time.Time
 
 func (jt JsonDateTime) String() string {
-	return fmt.Sprintf("\"%s\"", time.Time(jt).Format("2006-01-02"))
+	return fmt.Sprintf("%s", time.Time(jt).Format("2006-01-02"))
 }
 
 func (jt JsonDateTime) MarshalJSON() ([]byte, error) {

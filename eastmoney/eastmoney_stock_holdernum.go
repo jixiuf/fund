@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jixiuf/fund/utils"
+	"github.com/tealeg/xlsx"
 )
 
 // 每个季度大都会公布财报信息，获取所有股票的股东数 变化信息，
@@ -32,6 +33,46 @@ type StockHolderInfo struct {
 	EndDate             JsonDateTime `json:"EndDate,omitempty"`                  //本期 统计日期
 }
 
+func (this StockHolderInfo) GetRangeChangeRate() float64 {
+	f, _ := this.RangeChangeRate.Float64()
+	return f
+}
+
+func (this StockHolderInfo) GetHolderNumChangeRate() float64 {
+	f, _ := this.HolderNumChangeRate.Float64()
+	return f
+}
+
+func (this StockHolderInfo) AddRow(sheet *xlsx.Sheet) {
+	sheet.SetColWidth(0, 8, 10)
+	if this.Code == "" {
+		row := sheet.AddRow()
+		row.AddCell().SetString("股票代码")
+
+		row.AddCell().SetString("名称")
+		row.AddCell().SetString("本期股东数")
+		row.AddCell().SetString("上期股东数")
+		row.AddCell().SetString("股东增减比率")
+		row.AddCell().SetString("期间股票涨跌比")
+		row.AddCell().SetString("公布日期")
+		row.AddCell().SetString("上期截止日")
+		row.AddCell().SetString("本期截止日")
+	} else {
+		row := sheet.AddRow()
+		row.AddCell().SetString(this.Code)
+
+		row.AddCell().SetString(this.Name)
+		row.AddCell().SetInt(this.HolderNum)
+		row.AddCell().SetInt(this.PreviousHolderNum)
+		row.AddCell().SetFloat(this.GetHolderNumChangeRate())
+		row.AddCell().SetFloat(this.GetRangeChangeRate())
+		row.AddCell().SetString(this.NoticeDate.String())
+		row.AddCell().SetString(this.PreviousEndDate.String())
+		row.AddCell().SetString(this.EndDate.String())
+
+	}
+}
+
 func (this StockHolderInfo) String() string {
 	return fmt.Sprintf("code: %s,name:%s,股东增少比例:%s,本期日期:%s,上期日期:%s,公布日期:%s,本期股东数:%d,上期股东数:%d,区间股价波动:%s\n",
 		this.Code, this.Name, this.HolderNumChangeRate,
@@ -44,6 +85,25 @@ func (this StockHolderInfo) String() string {
 
 type StockHolderInfoList []StockHolderInfo
 
+func (this StockHolderInfoList) AddRows(sheet *xlsx.Sheet) {
+	StockHolderInfo{}.AddRow(sheet)
+	for _, info := range this {
+		info.AddRow(sheet)
+	}
+}
+
+func (l StockHolderInfoList) RemoveByEndDate(date time.Time) (l2 StockHolderInfoList) {
+	l2 = make(StockHolderInfoList, 0, len(l))
+	// 删除公布日期小于指定日期的数据
+	for _, info := range l {
+		if info.EndDate.ToTime().Before(date) {
+			continue
+		}
+		l2 = append(l2, info)
+	}
+	return
+}
+
 func (l StockHolderInfoList) RemoveByNoticeDate(date time.Time) (l2 StockHolderInfoList) {
 	l2 = make(StockHolderInfoList, 0, len(l))
 	// 删除公布日期小于指定日期的数据
@@ -52,6 +112,17 @@ func (l StockHolderInfoList) RemoveByNoticeDate(date time.Time) (l2 StockHolderI
 			continue
 		}
 		l2 = append(l2, info)
+	}
+	return
+}
+
+func (l StockHolderInfoList) FilterHolderNumChangeRate(begin, end float64) (l2 StockHolderInfoList) {
+	l2 = make(StockHolderInfoList, 0, len(l))
+	// 删除公布日期小于指定日期的数据
+	for _, info := range l {
+		if info.GetHolderNumChangeRate() > begin && info.GetHolderNumChangeRate() <= end {
+			l2 = append(l2, info)
+		}
 	}
 	return
 }
