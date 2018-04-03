@@ -31,6 +31,7 @@ type StockHolderInfo struct {
 	NoticeDate          JsonDateTime `json:"NoticeDate,omitempty"`               //公布日期
 	PreviousEndDate     JsonDateTime `json:"PreviousEndDate,omitempty"`          //上期 统计日期
 	EndDate             JsonDateTime `json:"EndDate,omitempty"`                  //本期 统计日期
+	DataUrl             string       `json:"DataUrl,omitempty"`
 }
 
 func (this StockHolderInfo) GetRangeChangeRate() float64 {
@@ -57,6 +58,7 @@ func (this StockHolderInfo) AddRow(sheet *xlsx.Sheet) {
 		row.AddCell().SetString("公布日期")
 		row.AddCell().SetString("上期截止日")
 		row.AddCell().SetString("本期截止日")
+		row.AddCell().SetString("个估数据中心")
 	} else {
 		row := sheet.AddRow()
 		row.AddCell().SetString(this.Code)
@@ -69,6 +71,7 @@ func (this StockHolderInfo) AddRow(sheet *xlsx.Sheet) {
 		row.AddCell().SetString(this.NoticeDate.String())
 		row.AddCell().SetString(this.PreviousEndDate.String())
 		row.AddCell().SetString(this.EndDate.String())
+		row.AddCell().SetString(this.DataUrl)
 
 	}
 }
@@ -163,6 +166,11 @@ func GetStockHolderInfo() (list StockHolderInfoList) {
 	err = json.Unmarshal(data, &response)
 	if err != nil {
 		fmt.Println(err)
+	}
+	for idx, data := range response.Data {
+		data.DataUrl = fmt.Sprintf("http://data.eastmoney.com/stockdata/%s.html", data.Code)
+		response.Data[idx] = data
+
 	}
 
 	return response.Data
