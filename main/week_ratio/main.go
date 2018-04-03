@@ -2,6 +2,7 @@ package main
 
 // 验证一个猜想，
 // 假如最近一周净值一直是增长达3%，是否意味着接下来的一周也会继续增长
+// 似乎并不可行
 
 import (
 	"fmt"
@@ -27,7 +28,7 @@ func main() {
 	fundList := db.FundValueHistoryGetAll(dbT)
 	fListSorter := eastmoney.NewFundListSort(fundList)
 	begin := time.Date(2017, 3, 6, 0, 0, 0, 0, time.Local)
-	end := time.Date(2018, 3, 6, 0, 0, 0, 0, time.Local)
+	end := time.Date(2018, 4, 4, 0, 0, 0, 0, time.Local)
 	from := begin
 	for {
 		to := from.Add(Day * 7)
@@ -80,6 +81,7 @@ func filterTopN(l *eastmoney.FundListSort, from, to time.Time, topN int, minRati
 		if len(l.FundList) <= i {
 			break
 		}
+		// for i, _ := range l.FundList {
 
 		if l.FundList[i].CalcFundYield(from, to) > minRatio {
 			// fmt.Println("", l.FundList[i].Id, l.FundList[i].Name, l.FundList[i].CalcFundYield(from, to))
