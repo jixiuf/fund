@@ -30,7 +30,7 @@ func initFundValueHistory() {
 			continue
 		}
 		db.FundValueHistoryInsertAll(dbT, fd)
-		time.Sleep(time.Second)
+		time.Sleep(time.Millisecond * 100)
 	}
 	fmt.Println("failed_list", tryAgainList)
 
@@ -44,7 +44,7 @@ func initFundValueHistory() {
 			continue
 		}
 		db.FundValueHistoryInsertAll(dbT, fd)
-		time.Sleep(time.Second)
+		time.Sleep(time.Millisecond * 100)
 	}
 
 }
